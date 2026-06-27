@@ -1,15 +1,14 @@
-import { useGetRecentPosts } from "@workspace/api-client-react";
+import { usePosts } from "@/store/posts-context";
 import { Layout } from "@/components/layout";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { ArrowRight, BookOpen } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  const { data: recentPosts, isLoading } = useGetRecentPosts();
+  const { recentPosts } = usePosts();
 
-  const featuredPost = recentPosts?.[0];
-  const otherPosts = recentPosts?.slice(1) || [];
+  const featuredPost = recentPosts[0];
+  const otherPosts = recentPosts.slice(1);
 
   return (
     <Layout>
@@ -34,67 +33,51 @@ export default function Home() {
           </Link>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
-            <div className="md:col-span-8 space-y-4">
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-4 w-1/4" />
-              <Skeleton className="h-32 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
+          {featuredPost && (
+            <div className="md:col-span-8 group">
+              <Link href={`/posts/${featuredPost.id}`} className="block space-y-6">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <span className="text-primary font-medium">{featuredPost.tags || "Article"}</span>
+                  <span>&mdash;</span>
+                  <time dateTime={featuredPost.createdAt}>{format(new Date(featuredPost.createdAt), "MMMM d, yyyy")}</time>
+                </div>
+                <h3 className="text-4xl md:text-5xl font-serif leading-tight group-hover:text-primary transition-colors">
+                  {featuredPost.title}
+                </h3>
+                {featuredPost.excerpt && (
+                  <p className="text-lg text-muted-foreground leading-relaxed">{featuredPost.excerpt}</p>
+                )}
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs">
+                    {featuredPost.author[0]}
+                  </span>
+                  {featuredPost.author}
+                </div>
+              </Link>
             </div>
-            <div className="md:col-span-4 space-y-8">
-              <Skeleton className="h-48 w-full" />
-              <Skeleton className="h-48 w-full" />
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
-            {featuredPost && (
-              <div className="md:col-span-8 group">
-                <Link href={`/posts/${featuredPost.id}`} className="block space-y-6">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span className="text-primary font-medium">{featuredPost.tags || 'Essay'}</span>
-                    <span>&mdash;</span>
-                    <time dateTime={featuredPost.createdAt}>{format(new Date(featuredPost.createdAt), 'MMMM d, yyyy')}</time>
-                  </div>
-                  <h3 className="text-4xl md:text-5xl font-serif leading-tight group-hover:text-primary transition-colors">
-                    {featuredPost.title}
-                  </h3>
-                  {featuredPost.excerpt && (
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                      {featuredPost.excerpt}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <span className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs">
-                      {featuredPost.author[0]}
-                    </span>
-                    {featuredPost.author}
-                  </div>
-                </Link>
-              </div>
-            )}
+          )}
 
-            {otherPosts.length > 0 && (
-              <div className="md:col-span-4 flex flex-col gap-10 border-t md:border-t-0 md:border-l border-border pt-10 md:pt-0 md:pl-10">
-                {otherPosts.map((post) => (
-                  <article key={post.id} className="group">
-                    <Link href={`/posts/${post.id}`} className="block space-y-3">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="text-primary">{post.tags || 'Article'}</span>
-                      </div>
-                      <h4 className="text-xl font-serif leading-snug group-hover:text-primary transition-colors">
-                        {post.title}
-                      </h4>
-                      <time className="text-sm text-muted-foreground" dateTime={post.createdAt}>
-                        {format(new Date(post.createdAt), 'MMM d, yyyy')}
-                      </time>
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+          {otherPosts.length > 0 && (
+            <div className="md:col-span-4 flex flex-col gap-10 border-t md:border-t-0 md:border-l border-border pt-10 md:pt-0 md:pl-10">
+              {otherPosts.map((post) => (
+                <article key={post.id} className="group">
+                  <Link href={`/posts/${post.id}`} className="block space-y-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="text-primary">{post.tags || "Article"}</span>
+                    </div>
+                    <h4 className="text-xl font-serif leading-snug group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h4>
+                    <time className="text-sm text-muted-foreground" dateTime={post.createdAt}>
+                      {format(new Date(post.createdAt), "MMM d, yyyy")}
+                    </time>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </Layout>
   );

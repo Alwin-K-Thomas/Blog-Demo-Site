@@ -1,10 +1,9 @@
 import { useEffect } from "react";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useGetPost, useCreatePost, useUpdatePost, getListPostsQueryKey, getGetPostStatsQueryKey, getGetPostQueryKey, getGetRecentPostsQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { usePosts } from "@/store/posts-context";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
-import { Link } from "wouter";
+import { ArrowLeft, Save } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -28,18 +26,13 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminPostForm() {
   const { id } = useParams<{ id: string }>();
-  const isEditing = !!id && id !== "new";
+  const isEditing = !!id;
   const postId = isEditing ? parseInt(id, 10) : undefined;
-  
+
   const [, setLocation] = useLocation();
-  const queryClient = useQueryClient();
+  const { getPost, createPost, updatePost } = usePosts();
 
-  const { data: post, isLoading: postLoading } = useGetPost(postId as number, {
-    query: { enabled: isEditing, queryKey: getGetPostQueryKey(postId as number) }
-  });
-
-  const createPost = useCreatePost();
-  const updatePost = useUpdatePost();
+  const post = postId !== undefined ? getPost(postId) : undefined;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -67,39 +60,38 @@ export default function AdminPostForm() {
   }, [post, isEditing, form]);
 
   const onSubmit = (data: FormValues) => {
-    if (isEditing) {
-      updatePost.mutate({ id: postId as number, data }, {
-        onSuccess: () => {
-          toast.success("Manuscript updated");
-          queryClient.invalidateQueries({ queryKey: getListPostsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetPostStatsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetPostQueryKey(postId as number) });
-          queryClient.invalidateQueries({ queryKey: getGetRecentPostsQueryKey() });
-          setLocation("/admin");
-        },
-        onError: () => toast.error("Failed to update manuscript")
+    if (isEditing && postId !== undefined) {
+      updatePost(postId, {
+        title: data.title,
+        content: data.content,
+        excerpt: data.excerpt || null,
+        author: data.author,
+        tags: data.tags || null,
+        published: data.published,
       });
+      toast.success("Manuscript updated");
     } else {
-      createPost.mutate({ data }, {
-        onSuccess: () => {
-          toast.success("Manuscript created");
-          queryClient.invalidateQueries({ queryKey: getListPostsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetPostStatsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetRecentPostsQueryKey() });
-          setLocation("/admin");
-        },
-        onError: () => toast.error("Failed to create manuscript")
+      createPost({
+        title: data.title,
+        content: data.content,
+        excerpt: data.excerpt || null,
+        author: data.author,
+        tags: data.tags || null,
+        published: data.published,
       });
+      toast.success("Manuscript created");
     }
+    setLocation("/admin");
   };
 
-  const isPending = createPost.isPending || updatePost.isPending;
-
-  if (isEditing && postLoading) {
+  if (isEditing && !post) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-20 text-center">
+          <h1 className="text-3xl font-serif mb-4">Post not found</h1>
+          <Link href="/admin" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-medium">
+            <ArrowLeft className="w-4 h-4" /> Back to desk
+          </Link>
         </div>
       </Layout>
     );
@@ -112,9 +104,7 @@ export default function AdminPostForm() {
           <Link href="/admin" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">
             <ArrowLeft className="w-4 h-4 mr-1" /> Back to desk
           </Link>
-          <h1 className="text-3xl font-serif">
-            {isEditing ? 'Edit Manuscript' : 'New Manuscript'}
-          </h1>
+          <h1 className="text-3xl font-serif">{isEditing ? "Edit Manuscript" : "New Manuscript"}</h1>
         </div>
       </div>
 
@@ -130,7 +120,7 @@ export default function AdminPostForm() {
                     <FormItem>
                       <FormLabel className="font-serif text-base">Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="A memorable title..." className="text-lg py-6 font-serif" {...field} />
+                        <Input placeholder="A memorable title..." className="text-lg py-6 font-serif" {...field} data-testid="input-title" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -144,10 +134,11 @@ export default function AdminPostForm() {
                     <FormItem>
                       <FormLabel className="font-serif text-base">Excerpt (Optional)</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="A brief summary for the index..." 
-                          className="resize-none h-24" 
-                          {...field} 
+                        <Textarea
+                          placeholder="A brief summary for the index..."
+                          className="resize-none h-24"
+                          {...field}
+                          data-testid="input-excerpt"
                         />
                       </FormControl>
                       <FormMessage />
@@ -162,10 +153,11 @@ export default function AdminPostForm() {
                     <FormItem>
                       <FormLabel className="font-serif text-base">Content</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Write your essay here..." 
-                          className="min-h-[400px] font-mono text-sm leading-relaxed p-4" 
-                          {...field} 
+                        <Textarea
+                          placeholder="Write your article here..."
+                          className="min-h-[400px] font-mono text-sm leading-relaxed p-4"
+                          {...field}
+                          data-testid="input-content"
                         />
                       </FormControl>
                       <FormMessage />
@@ -183,15 +175,10 @@ export default function AdminPostForm() {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel className="text-base font-serif">Status</FormLabel>
-                          <FormDescription>
-                            Make public immediately
-                          </FormDescription>
+                          <FormDescription>Make public immediately</FormDescription>
                         </div>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Switch checked={field.value} onCheckedChange={field.onChange} data-testid="switch-published" />
                         </FormControl>
                       </FormItem>
                     )}
@@ -204,7 +191,7 @@ export default function AdminPostForm() {
                       <FormItem>
                         <FormLabel className="font-serif text-base">Author</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} data-testid="input-author" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -218,18 +205,21 @@ export default function AdminPostForm() {
                       <FormItem>
                         <FormLabel className="font-serif text-base">Tags</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Design, Culture" {...field} />
+                          <Input placeholder="e.g. kubernetes, networking" {...field} data-testid="input-tags" />
                         </FormControl>
                         <FormDescription>Comma separated</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
-                  <Button type="submit" className="w-full font-serif text-lg tracking-wide" disabled={isPending} data-testid="button-save-post">
-                    {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    {!isPending && <Save className="w-4 h-4 mr-2" />}
-                    {isEditing ? 'Save Changes' : 'Publish Draft'}
+
+                  <Button
+                    type="submit"
+                    className="w-full font-serif text-lg tracking-wide"
+                    data-testid="button-save-post"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isEditing ? "Save Changes" : "Publish Draft"}
                   </Button>
                 </div>
               </div>
