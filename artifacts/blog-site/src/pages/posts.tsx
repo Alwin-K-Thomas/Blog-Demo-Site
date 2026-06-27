@@ -34,7 +34,7 @@ export default function Posts() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 type="search"
-                placeholder="Search essays..." 
+                placeholder="Search articles..." 
                 className="pl-9 bg-background border-border/60 focus-visible:ring-primary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -79,7 +79,7 @@ export default function Posts() {
           </div>
         ) : filteredPosts?.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
-            <p className="text-lg">No essays found matching your criteria.</p>
+            <p className="text-lg">No articles found matching your criteria.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-x-12 md:gap-y-16">

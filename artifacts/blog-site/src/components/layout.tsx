@@ -37,7 +37,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
       <footer className="border-t border-border bg-card py-12 mt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground text-sm">
-          <p className="font-serif italic mb-4 text-lg">Ideas worth reading.</p>
+          <p className="font-serif italic mb-4 text-lg">Ship it. Scale it. Sleep at night.</p>
           <p>&copy; {new Date().getFullYear()} The Daily Draft. All rights reserved.</p>
         </div>
       </footer>

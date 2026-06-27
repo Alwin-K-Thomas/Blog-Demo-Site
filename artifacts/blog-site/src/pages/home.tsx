@@ -17,10 +17,10 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="text-5xl md:text-7xl font-serif leading-tight">
-              Curated thoughts for a slow afternoon.
+              The field guide to running Kubernetes in production.
             </h1>
             <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto">
-              The Daily Draft is an independent publication dedicated to essays on design, technology, culture, and the spaces between.
+              The Daily Draft is a publication for platform engineers and developers — covering Kubernetes, containers, cloud-native infrastructure, and everything that keeps software running reliably at scale.
             </p>
           </div>
         </div>
