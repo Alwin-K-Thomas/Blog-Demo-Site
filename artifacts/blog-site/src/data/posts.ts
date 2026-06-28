@@ -28,8 +28,8 @@ Mastering these objects gives you a solid foundation. Everything else in the eco
     author: "Alex Johnson",
     tags: "kubernetes, fundamentals, containers",
     published: true,
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: "2026-06-17T10:00:00.000Z",
+    updatedAt: "2026-06-17T10:00:00.000Z",
   },
   {
     id: 2,
@@ -48,8 +48,8 @@ For advanced needs, a service mesh like Istio or Linkerd inserts a sidecar proxy
     author: "Maria Chen",
     tags: "kubernetes, networking, ingress",
     published: true,
-    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: "2026-06-21T10:00:00.000Z",
+    updatedAt: "2026-06-21T10:00:00.000Z",
   },
   {
     id: 3,
@@ -70,8 +70,8 @@ Combining these four patterns — resources, probes, PDBs, and graceful shutdown
     author: "Sam Rivera",
     tags: "kubernetes, production, reliability",
     published: true,
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: "2026-06-25T10:00:00.000Z",
+    updatedAt: "2026-06-25T10:00:00.000Z",
   },
   {
     id: 4,
@@ -90,8 +90,8 @@ For complex applications — multi-chart deployments with explicit dependency or
     author: "Alex Johnson",
     tags: "kubernetes, helm, devops",
     published: true,
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: "2026-06-23T10:00:00.000Z",
+    updatedAt: "2026-06-23T10:00:00.000Z",
   },
   {
     id: 5,
@@ -110,7 +110,7 @@ Progressive delivery extensions like Argo Rollouts integrate with ArgoCD to add 
     author: "Maria Chen",
     tags: "kubernetes, gitops, argocd",
     published: false,
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: "2026-06-26T10:00:00.000Z",
+    updatedAt: "2026-06-26T10:00:00.000Z",
   },
 ];
